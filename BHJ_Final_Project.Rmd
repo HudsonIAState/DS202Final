@@ -1,0 +1,83 @@
+---
+title: "Final Project: Nutrition, Physical Activity, and Obesity Analysis"
+author: "Your Name(s)"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(readr)
+```
+
+## Data Description
+
+The dataset used for this analysis is from the Behavioral Risk Factor Surveillance System and can be found at https://catalog.data.gov/dataset/nutrition-physical-activity-and-obesity-behavioral-risk-factor-surveillance-system/resource/0280bb9c-4de8-4b95-9642-93f727c4d305. The data provides health-related info on nutrition, physical activity, and obesity among adults in the United States. The data seems to be gathered annually (from 2011 - 2023) and contains variables related to location, health topics, data values, confidence intervals, and demographics
+
+Key Variables:
+
+`YearStart` and `YearEnd`: Indicate the time period of data collection.
+`LocationAbbr` and `LocationDesc`: Provide geographic information.
+`Class`, `Topic`, `Question`: Classify the health measures and behaviors.
+`Data_Value`: Represents the main health measurement.
+`Age`, `Education`, `Gender`, `Income`, `Race/Ethnicity`: Demographic categories for stratified analysis.
+
+Another thing of note, many columns contain null values due to the varying nature of the `Question` variable. If we were to just remove all rows that have null column values, This would be a misstep.
+
+## Primary Data Cleaning
+
+```{r}
+data_url <- "https://chronicdata.cdc.gov/api/views/hn4x-zwk7/rows.csv?accessType=DOWNLOAD"
+data <- read_csv(data_url)
+
+cleaned_data <- data %>%
+  filter(!is.na(Data_Value))
+
+View(cleaned_data)
+
+cleaned_data <- cleaned_data %>%
+  select(YearStart, LocationDesc, Class, Topic, Question, Data_Value, `Age(years)`, Education, Gender, Income, 'Race/Ethnicity')
+
+summary(cleaned_data)
+
+```
+## Marginal Summaries
+``` {r}
+summary(cleaned_data$Data_Value)
+
+class_counts <- cleaned_data %>%
+  count(Class) %>%
+  arrange(desc(n))
+
+print(class_counts)
+```
+
+We can see that the average data_value lands right around 32-ish percent of any given group, so we will be able to use this as a gauge of "good" if a data value is greater than 32, and "bad" if the data value is less than 32.
+
+``` {r}
+ggplot(cleaned_data, aes(x = Data_Value)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of Data Values by Class", x = "Data Value", y = "Frequency") +
+  facet_wrap(~ Class, scales = "free_y") +
+  theme_minimal()
+
+```
+
+
+I thought it might be interesting to see the distribution of each class of data value, and the frequency that it occurred. This would give us some sort of idea what our data focused on, and how much a single statistic may vary.
+
+## Questions to be Addressed
+
+1. **How do nutrition, physical activity, and obesity metrics vary across different states?**
+   - We will analyze how these health measures differ by location and explore geographic patterns.
+
+2. **What demographic factors (age, gender, income, education, race/ethnicity) are most associated with variations in health metrics?**
+   - We will investigate if there are significant differences in data values based on demographic stratifications.
+
+3. **Has there been a significant change over time in key health metrics from YearStart to YearEnd?**
+   - We will examine trends over the years to see if public health interventions have had an impact.
+
+4. **What is the relationship between socioeconomic status (e.g., income, education) and health measures like obesity and physical activity?**
+   - We will perform correlation and regression analyses to understand these relationships.
