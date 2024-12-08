@@ -72,12 +72,98 @@ I thought it might be interesting to see the distribution of each class of data 
 
 1. **How do nutrition, physical activity, and obesity metrics vary across different states?**
    - We will analyze how these health measures differ by location and explore geographic patterns.
+   
+``` {r}
+# Filter data for the specific question
+obesity_data <- cleaned_data %>%
+  filter(Question == "Percent of adults aged 18 years and older who have obesity") %>%
+  select(LocationDesc, Data_Value)
+
+# View the resulting dataframe
+head(obesity_data)
+
+# If you want the dataframe grouped by state:
+state_obesity <- obesity_data %>%
+  group_by(LocationDesc) %>%
+  summarise(Average_Obesity_Percent = mean(Data_Value, na.rm = TRUE))
+
+# View summarized data
+head(state_obesity)   
+
+highest_obesity <- state_obesity %>%
+  arrange(desc(Average_Obesity_Percent))
+
+# View the highest percentages
+head(highest_obesity)
+
+# Create a dataframe for the lowest percentages
+lowest_obesity <- state_obesity %>%
+  arrange(Average_Obesity_Percent)
+
+# View the lowest percentages
+head(lowest_obesity)
+
+# Ensure the states are ordered alphabetically
+state_obesity <- state_obesity %>%
+  arrange(LocationDesc)
+
+# Split the data into two halves: lowest and highest
+halfway_point <- nrow(state_obesity) / 2
+
+# Lowest obesity data (first half)
+lowest_half <- state_obesity %>%
+  arrange(Average_Obesity_Percent) %>%
+  head(halfway_point)
+
+# Highest obesity data (second half)
+highest_half <- state_obesity %>%
+  arrange(desc(Average_Obesity_Percent)) %>%
+  head(halfway_point)
+
+# Plot for lowest obesity data
+ggplot(lowest_half, aes(x = reorder(LocationDesc, Average_Obesity_Percent), y = Average_Obesity_Percent)) +
+  geom_bar(stat = "identity", fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Lowest Obesity Percentage by State",
+    x = "State",
+    y = "Average Obesity Percentage"
+  ) +
+  theme_minimal() +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 8, hjust = 1))
+
+# Plot for highest obesity data
+ggplot(highest_half, aes(x = reorder(LocationDesc, Average_Obesity_Percent), y = Average_Obesity_Percent)) +
+  geom_bar(stat = "identity", fill = "salmon", color = "black", alpha = 0.7) +
+  labs(
+    title = "Highest Obesity Percentage by State",
+    x = "State",
+    y = "Average Obesity Percentage"
+  ) +
+  theme_minimal() +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 8, hjust = 1))
+```
 
 2. **What demographic factors (age, gender, income, education, race/ethnicity) are most associated with variations in health metrics?**
    - We will investigate if there are significant differences in data values based on demographic stratifications.
+   
+   
+``` {r}
+
+```
+   
 
 3. **Has there been a significant change over time in key health metrics from YearStart to YearEnd?**
    - We will examine trends over the years to see if public health interventions have had an impact.
+   
+``` {r}
+
+```
 
 4. **What is the relationship between socioeconomic status (e.g., income, education) and health measures like obesity and physical activity?**
    - We will perform correlation and regression analyses to understand these relationships.
+   
+``` {r}
+
+```
