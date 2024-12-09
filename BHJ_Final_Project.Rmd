@@ -617,7 +617,7 @@ new_cols_data <- list(na.omit(data1), na.omit(data2), na.omit(data3), na.omit(da
 
 avg_list <- list()
 meaning_list <- list()
-question_list <- list()
+questions_avg <- list()
   for (j in 1:length(unique_qs)) {
     for(i in 1:length(cols_data)) {
       for(k in 1:length(new_cols_data[[i]])) {
@@ -634,26 +634,26 @@ question_list <- list()
       avg <- paste0("avg",i,j,k)
       avg_list[[avg]] <- mean(filtered_data$Data_Value)
       meaning_list[[avg]] <- new_cols_data[[i]][k]
+      questions_avg[[avg]] <- unique_qs[j]
       }
   }
-  }
+}
 
 df <- data.frame(
   doubles = unlist(avg_list),
   chars = unlist(meaning_list),
-  chars2 = unlist(meaning_list),
+  chars2 = unlist(questions_avg),
   stringsAsFactors = FALSE
 )
 
-# Sort the data frame based on 'doubles' column in descending order
-sorted_df <- df[order(-df$doubles), ]
+obesity_rates <- df %>% 
+  filter(chars2 == unique_qs[1])
 
-head(new_cols_data[[i]])
-abo <- question_data %>%
-      filter(as.vector(.[[cols_data[1]]]) == new_cols_data[[1]][1])
-print(cols_data[1])
-print(new_cols_data[[1]][1])
-ab111 <- mean(filtered_data$Data_Value)
+filtered_df <- obesity_rates %>%
+  arrange(desc(doubles))
+
+head(filtered_df, 10)
+
 ```
 
 3. **Has there been a significant change over time in key health metrics from YearStart to YearEnd?**
