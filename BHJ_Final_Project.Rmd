@@ -38,7 +38,7 @@ cleaned_data <- data %>%
 View(cleaned_data)
 
 cleaned_data <- cleaned_data %>%
-  select(YearStart, LocationDesc, Class, Topic, Question, Data_Value, `Age(years)`, Education, Gender, Income, 'Race/Ethnicity')
+  select(YearStart, LocationDesc, Class, Topic, Question, Data_Value, Sample_Size, `Age(years)`, Education, Gender, Income, 'Race/Ethnicity')
 
 summary(cleaned_data)
 
@@ -630,14 +630,21 @@ questions_avg <- list()
       filtered_data <- question_data %>%
       filter(.[[cols_data[i]]] == new_cols_data[[i]][k])
       head(filtered_data)
-      
+      mean_f <- 0
+      mean_ts <- 0
+      for(l in 1:length(filtered_data)) {
+        mean_ts <- mean_ts + filtered_data$Sample_Size[l]
+        mean_f <- mean_f + filtered_data$Sample_Size[l] * filtered_data$Data_Value[l]
+      }
       avg <- paste0("avg",i,j,k)
-      avg_list[[avg]] <- mean(filtered_data$Data_Value)
+      avg_list[[avg]] <- (mean_f / mean_ts)
+      
       meaning_list[[avg]] <- new_cols_data[[i]][k]
       questions_avg[[avg]] <- unique_qs[j]
       }
+    }
   }
-}
+
 
 df <- data.frame(
   doubles = unlist(avg_list),
@@ -656,17 +663,50 @@ head(filtered_df, 10)
 
 ```
 
-3. **Has there been a significant change over time in key health metrics from YearStart to YearEnd?**
+3. **Has there been a significant change over time in key health metrics for different years**
    - We will examine trends over the years to see if public health interventions have had an impact.
    
 ``` {r}
+years_df <- cleaned_data %>% group_by(YearStart) %>% filter(Question == unique_qs[1]) %>% summarize(bruh = mean(Data_Value))
+head(years_df, 12)
 
+ggplot(years_df, aes(x = YearStart, y = bruh)) +
+  geom_line(color = "orange", size = 1) +  # Line color and thickness
+  geom_point(color = "purple", size = 3) +  # Points at each data point
+  labs(title = "Obesity Percentage Trend Over Time",
+       x = "Year", y = "Data Value") +
+  scale_x_continuous(breaks = data$YearStart) +
+  theme_minimal()  # Minimal theme for the plot
 
 ```
 
 4. **What is the relationship between socioeconomic status (e.g., income, education) and health measures like obesity and physical activity?**
    - We will perform correlation and regression analyses to understand these relationships.
    
+   We have adjusted to do an ANOVA Distribution to visualize our data. We chose this because our data seemed to be qualitative in all areas other than the percentage positive response. 
+   
 ``` {r}
+# Filter the data to remove missing or invalid values
+socio_f <- cleaned_data %>%
+  filter(Question == unique_qs[1] & !is.na(Income) & Income != "Data not reported")
 
+# Create a box plot of Data_Value for each Income level
+library(ggplot2)
+
+ggplot(socio_f, aes(x = Income, y = Data_Value)) +
+  geom_boxplot() +
+  labs(
+    title = "Box Plot of Data Values by Income",
+    x = "Income Level",
+    y = "Data Value"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+
+
+
+socio <- cleaned_data %>% group_by(Income) %>% filter(Question == unique_qs[1] & !is.na(Income) & Income != "Data not reported") %>% summarize(Data_Value = sum((Data_Value * Sample_Size)) / sum(Sample_Size) , Sample_Size = sum(Sample_Size))
+
+socio_o <- socio %>% arrange(desc(socio$Data_Value))
+head(socio_o)
 ```
