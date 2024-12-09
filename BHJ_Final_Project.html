@@ -575,6 +575,57 @@ metrics?</strong>
 <li>We will investigate if there are significant differences in data
 values based on demographic stratifications.</li>
 </ul></li>
+</ol>
+<pre class="r"><code>unique_qs &lt;- unique(cleaned_data$Question)
+head(unique_qs, 9)</code></pre>
+<pre><code>## [1] &quot;Percent of adults aged 18 years and older who have obesity&quot;                                                                                                                                                                                           
+## [2] &quot;Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic physical activity and engage in muscle-strengthening activities on 2 or more days a week&quot;
+## [3] &quot;Percent of adults aged 18 years and older who have an overweight classification&quot;                                                                                                                                                                      
+## [4] &quot;Percent of adults who engage in muscle-strengthening activities on 2 or more days a week&quot;                                                                                                                                                             
+## [5] &quot;Percent of adults who engage in no leisure-time physical activity&quot;                                                                                                                                                                                    
+## [6] &quot;Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)&quot;                                                 
+## [7] &quot;Percent of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)&quot;                                                
+## [8] &quot;Percent of adults who report consuming fruit less than one time daily&quot;                                                                                                                                                                                
+## [9] &quot;Percent of adults who report consuming vegetables less than one time daily&quot;</code></pre>
+<pre class="r"><code># Split all the questions into their own df section (we&#39;ll use these later)
+question_list &lt;- split(cleaned_data, cleaned_data$Question)
+
+head(question_list[[unique_qs[1]]])</code></pre>
+<pre><code>## # A tibble: 6 × 11
+##   YearStart LocationDesc Class  Topic Question Data_Value `Age(years)` Education
+##       &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;    
+## 1      2011 Alaska       Obesi… Obes… Percent…       23.3 &lt;NA&gt;         &lt;NA&gt;     
+## 2      2011 Alaska       Obesi… Obes… Percent…       35.5 &lt;NA&gt;         &lt;NA&gt;     
+## 3      2011 Alaska       Obesi… Obes… Percent…       29.5 35 - 44      &lt;NA&gt;     
+## 4      2011 Alaska       Obesi… Obes… Percent…       28   &lt;NA&gt;         &lt;NA&gt;     
+## 5      2011 Alaska       Obesi… Obes… Percent…       26.7 &lt;NA&gt;         &lt;NA&gt;     
+## 6      2011 Alaska       Obesi… Obes… Percent…       25.8 &lt;NA&gt;         Some col…
+## # ℹ 3 more variables: Gender &lt;chr&gt;, Income &lt;chr&gt;, `Race/Ethnicity` &lt;chr&gt;</code></pre>
+<pre class="r"><code># Assuming unique_qs is the vector of unique question names (e.g., obtained with unique(cleaned_data$Question))
+
+# Loop over each unique question
+for (i in 1:length(unique_qs)) {
+  
+  # Extract the data for the current question
+  question_data &lt;- question_list[[unique_qs[i]]]
+  
+  # Filter data based on condition, e.g., Gender == &quot;Female&quot;
+  filtered_data &lt;- question_data %&gt;%
+    filter(Gender == &quot;Female&quot;)  # You can change the condition here
+  
+  # Plot the data
+  ggplot(filtered_data, aes(x = reorder(LocationDesc, Data_Value), y = Data_Value)) +
+    geom_bar(stat = &quot;identity&quot;, fill = &quot;lightblue&quot;, color = &quot;black&quot;, alpha = 0.7) +
+    labs(
+      title = paste(&quot;Data for&quot;, unique_qs[i], &quot;by Female&quot;),
+      x = &quot;State&quot;,
+      y = &quot;Data Value&quot;
+    ) +
+    theme_minimal() +
+    coord_flip() +
+    theme(axis.text.y = element_text(size = 8, hjust = 1))
+}</code></pre>
+<ol start="3" style="list-style-type: decimal">
 <li><strong>Has there been a significant change over time in key health
 metrics from YearStart to YearEnd?</strong>
 <ul>
