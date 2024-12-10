@@ -79,6 +79,10 @@ obesity_data <- cleaned_data %>%
   filter(Question == "Percent of adults aged 18 years and older who have obesity") %>%
   select(LocationDesc, Data_Value)
 
+vegetable_data <- cleaned_data %>%
+  filter(Question == "Percent of adults who report consuming vegetables less than one time daily") %>%
+  select(LocationDesc, Data_Value)
+
 # View the resulting dataframe
 head(obesity_data)
 
@@ -97,11 +101,13 @@ highest_obesity <- state_obesity %>%
 head(highest_obesity)
 
 # Create a dataframe for the lowest percentages
-lowest_obesity <- state_obesity %>%
-  arrange(Average_Obesity_Percent)
+state_vegetable <- vegetable_data %>%
+  group_by(LocationDesc) %>%
+  summarise(Average_Vegetable_Percent = mean(Data_Value, na.rm = TRUE)) %>%
+  arrange(Average_Vegetable_Percent)
 
 # View the lowest percentages
-head(lowest_obesity)
+head(state_vegetable)
 
 # Ensure the states are ordered alphabetically
 state_obesity <- state_obesity %>%
@@ -111,27 +117,30 @@ state_obesity <- state_obesity %>%
 halfway_point <- nrow(state_obesity) / 2
 
 # Lowest obesity data (first half)
-lowest_half <- state_obesity %>%
-  arrange(Average_Obesity_Percent) %>%
-  head(halfway_point)
+lowest_half <- state_vegetable %>%
+  arrange(state_vegetable) %>%
+  head(nrow(state_vegetable) / 2)
 
 # Highest obesity data (second half)
 highest_half <- state_obesity %>%
   arrange(desc(Average_Obesity_Percent)) %>%
   head(halfway_point)
 
+state_vegetable <- state_vegetable %>%
+  arrange(state_vegetable) %>%
+  head(nrow(state_vegetable) / 2)
+
 # Plot for lowest obesity data
-ggplot(lowest_half, aes(x = reorder(LocationDesc, Average_Obesity_Percent), y = Average_Obesity_Percent)) +
+ggplot(state_vegetable, aes(x = reorder(LocationDesc, Average_Vegetable_Percent), y = Average_Vegetable_Percent)) +
   geom_bar(stat = "identity", fill = "lightblue", color = "black", alpha = 0.7) +
   labs(
-    title = "Lowest Obesity Percentage by State",
+    title = "Vegetable Consumption by State",
     x = "State",
-    y = "Average Obesity Percentage"
+    y = "Percent Consuming Vegetables < Once per Day"
   ) +
   theme_minimal() +
   coord_flip() +
   theme(axis.text.y = element_text(size = 8, hjust = 1))
-
 # Plot for highest obesity data
 ggplot(highest_half, aes(x = reorder(LocationDesc, Average_Obesity_Percent), y = Average_Obesity_Percent)) +
   geom_bar(stat = "identity", fill = "salmon", color = "black", alpha = 0.7) +
@@ -254,346 +263,7 @@ grid.text("Demographic",
 
 ```
 
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Race/Ethnicity` == "Hispanic")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Race/Ethnicity`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "forestgreen", color = "forestgreen", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
 
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Hispanic", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Race/Ethnicity` == "Non-Hispanic White")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Race/Ethnicity`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "grey", color = "grey", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Non-Hispanic White", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Race/Ethnicity` == "Asian")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Race/Ethnicity`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "purple", color = "purple", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Asian", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Race/Ethnicity` == "Non-Hispanic Black")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Race/Ethnicity`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "orange", color = "orange", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Non-Hispanic Black", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Race/Ethnicity` == "American Indian/Alaska Native")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Race/Ethnicity`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "aquamarine", color = "aquamarine", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: American Indian/Alaska Native", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Age(years)` == "18 - 24")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Age(years)`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "yellow", color = "yellow", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Age 18 - 24", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Age(years)` == "25 - 34")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Age(years)`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "orange", color = "orange", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Age 25 - 34", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
-
-``` {r}
-for (i in 1:length(unique_qs)) {
-  
-  # Extract the data for the current question
-  question_data <- question_list[[unique_qs[i]]]
-  
-  # Filter data based on condition, e.g., Gender == "Female"
-  filtered_data <- question_data %>%
-    filter(`Age(years)` == "35 - 44")  # You can change the condition here
-  
-  # Compute the average value of Data_Value
-  avg_data_value <- filtered_data %>%
-    summarise(Average_Value = mean(Data_Value, na.rm = TRUE)) %>%
-    pull(Average_Value)
-  
-   plot_name <- paste0("plot", i)
-  # Create a plot for the current question with the average value
-  assign(plot_name , ggplot(title = "ten", filtered_data, aes(x = `Age(years)`, y = Data_Value)) +
-    geom_bar(stat = "identity", fill = "red", color = "red", alpha = 0.7) +
-    labs(
-      title = paste(q_titles[i]),
-      subtitle = paste("Average Value:", round(avg_data_value, 2)),
-      x = "",
-      y = ""
-    ) +
-    theme_minimal() +
-    theme(axis.text.y = element_text(size = 8, hjust = 1), plot.title = element_text(size = 10))
-  )
-}
-
-# Combine all plots into a grid (3 rows and 3 columns in this case)
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, nrow = 3, ncol = 3, top = textGrob("Health questions grouped by: Age 35 - 44", gp = gpar(fontsize = 16, fontface = "bold"))) 
-
-grid.text("Count of demographic", 
-          x = unit(.014, "npc"), y = unit(0.5, "npc"), 
-          rot = 90, gp = gpar(fontsize = 16, fontface = "bold"))
-
-grid.text("Demographic", 
-          x = unit(.5, "npc"), y = unit(.03, "npc"), 
-          rot = 0, gp = gpar(fontsize = 16, fontface = "bold"))
-
-```
 
 
 ```{r}
