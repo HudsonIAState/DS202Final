@@ -380,3 +380,105 @@ socio <- cleaned_data %>% group_by(Income) %>% filter(Question == unique_qs[1] &
 socio_o <- socio %>% arrange(desc(socio$Data_Value))
 head(socio_o)
 ```
+
+So what is the characteristic that most likely indicates obesity?
+
+``` {r}
+library(dplyr)
+library(tidyr)
+
+df2 <- df %>% filter(df$chars2 == unique_qs[2])
+
+df4 <- df %>% filter(df$chars2 == unique_qs[4])
+
+df5 <- df %>% filter(df$chars2 == unique_qs[5])
+
+df6 <- df %>% filter(df$chars2 == unique_qs[6])
+
+df7 <- df %>% filter(df$chars2 == unique_qs[7])
+
+df8 <- df %>% filter(df$chars2 == unique_qs[8])
+
+df9 <- df %>% filter(df$chars2 == unique_qs[9])
+
+df1 <- df %>% filter(df$chars2 == unique_qs[1])
+                     
+df3 <- df %>% filter(df$chars2 == unique_qs[3])
+
+df_combined12 <- inner_join(df2, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined14 <- inner_join(df4, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined15 <- inner_join(df5, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined16 <- inner_join(df6, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined17 <- inner_join(df7, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined18 <- inner_join(df8, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined19 <- inner_join(df9, df1, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined32 <- inner_join(df2, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined34 <- inner_join(df4, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined35 <- inner_join(df5, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined36 <- inner_join(df6, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined37 <- inner_join(df7, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined38 <- inner_join(df8, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+df_combined39 <- inner_join(df9, df3, by = "chars", suffix = c("_outcome1", "_outcome2"))
+
+# Correlation with Outcome 1
+correlations_outcome12 <- cor(df_combined12$doubles_outcome2, df_combined12$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome14 <- cor(df_combined14$doubles_outcome2, df_combined14$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome15 <- cor(df_combined15$doubles_outcome2, df_combined15$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome16 <- cor(df_combined16$doubles_outcome2, df_combined16$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome17 <- cor(df_combined17$doubles_outcome2, df_combined17$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome18 <- cor(df_combined18$doubles_outcome2, df_combined18$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome19 <- cor(df_combined19$doubles_outcome2, df_combined19$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome32 <- cor(df_combined32$doubles_outcome2, df_combined32$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome34 <- cor(df_combined34$doubles_outcome2, df_combined34$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome35 <- cor(df_combined35$doubles_outcome2, df_combined35$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome36 <- cor(df_combined36$doubles_outcome2, df_combined36$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome37 <- cor(df_combined37$doubles_outcome2, df_combined37$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome38 <- cor(df_combined38$doubles_outcome2, df_combined38$doubles_outcome1, use = "complete.obs")
+
+correlations_outcome39 <- cor(df_combined39$doubles_outcome2, df_combined39$doubles_outcome1, use = "complete.obs")
+
+correlation_results <- c(correlations_outcome12, correlations_outcome14, correlations_outcome15, correlations_outcome16, correlations_outcome17, correlations_outcome18, correlations_outcome19, correlations_outcome32, correlations_outcome34, correlations_outcome35, correlations_outcome36, correlations_outcome37, correlations_outcome38, correlations_outcome39)
+
+print(paste("Index:", which.max(correlation_results), "Max Correlation:", max(correlation_results)))
+
+print(paste("Index:", which.min(correlation_results), "min Correlation:", min(correlation_results)))
+
+```
+
+
+These indices correlate to correlation outcome15 and 16, which means obesity is most related to unique_qs[5] and most inversely correlated with unique[6]
+
+``` {r} 
+print(unique_qs[5])
+
+```
+
+``` {r} 
+print(unique_qs[6])
+
+```
